@@ -7,6 +7,7 @@ public class EnemyAI : MonoBehaviour
     public enum State
     {
         Patrol,
+        Investigate,
         Chase,
         Attack
     }
@@ -23,12 +24,24 @@ public class EnemyAI : MonoBehaviour
     [Header("Movimento")]
     [SerializeField] private float patrolSpeed = 3.5f;
     [SerializeField] private float chaseSpeed = 6f;
+
+    [Header("Distâncias")]
     [SerializeField] private float attackDistance = 1.8f;
+    [SerializeField] private float investigateDistance = 1.5f;
+
+    [Header("Investigação")]
+    [SerializeField] private float investigateWaitTime = 4f;
+    [SerializeField] private float maxInvestigateTime = 6f;
 
     [Header("Rotas")]
     [SerializeField] private Transform[] route1;
     [SerializeField] private Transform[] route2;
     [SerializeField] private Transform[] route3;
+    [SerializeField] private Transform[] route4;
+    [SerializeField] private Transform[] route5;
+    [SerializeField] private Transform[] route6;
+    [SerializeField] private Transform[] route7;
+    [SerializeField] private Transform[] route8;
 
     [SerializeField] private int currentRoute = 1;
 
@@ -40,11 +53,19 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private AudioSource spottedSound;
 
     private Transform[] currentRoutePoints;
-    private int currentPoint = 0;
+    private int currentPoint;
 
     private State state = State.Patrol;
 
-    private bool playedSpottedSound = false;
+    private Vector3 lastKnownPlayerPosition;
+    private Vector3 investigatePosition;
+
+    private float investigateTimer;
+    private float investigateElapsed;
+
+    private bool playedSpottedSound;
+    private bool isAttacking;
+    private bool playerIsHidden;
 
 
     private void Start()
@@ -66,6 +87,10 @@ public class EnemyAI : MonoBehaviour
                 Patrol();
                 break;
 
+            case State.Investigate:
+                Investigate();
+                break;
+
             case State.Chase:
                 Chase();
                 break;
@@ -84,26 +109,59 @@ public class EnemyAI : MonoBehaviour
             currentRoutePoints.Length == 0)
             return;
 
-        Transform point =
-            currentRoutePoints[currentPoint];
-
+        agent.isStopped = false;
         agent.speed = patrolSpeed;
+
+        Transform point = currentRoutePoints[currentPoint];
+
+        if (point == null)
+            return;
+
         agent.SetDestination(point.position);
 
         if (!agent.pathPending &&
             agent.remainingDistance <= 0.5f)
         {
-            currentPoint++;
-
-            if (currentPoint >= currentRoutePoints.Length)
-            {
-                currentPoint = 0;
-            }
+            currentPoint =
+                (currentPoint + 1) %
+                currentRoutePoints.Length;
         }
 
         if (CanSeePlayer())
+            StartChase();
+    }
+
+
+    // INVESTIGAÇÃO
+    private void Investigate()
+    {
+        if (CanSeePlayer())
         {
             StartChase();
+            return;
+        }
+
+        investigateElapsed += Time.deltaTime;
+
+        if (investigateElapsed >= maxInvestigateTime)
+        {
+            ReturnToPatrol();
+            return;
+        }
+
+        agent.isStopped = false;
+        agent.speed = chaseSpeed;
+        agent.SetDestination(investigatePosition);
+
+        if (Vector3.Distance(
+                transform.position,
+                investigatePosition) <= investigateDistance)
+        {
+            agent.isStopped = true;
+            investigateTimer -= Time.deltaTime;
+
+            if (investigateTimer <= 0f)
+                ReturnToPatrol();
         }
     }
 
@@ -111,36 +169,44 @@ public class EnemyAI : MonoBehaviour
     // PERSEGUIÇÃO
     private void Chase()
     {
-        if (player == null)
+        if (player == null ||
+            playerIsHidden)
+        {
+            StartInvestigation(lastKnownPlayerPosition);
             return;
-
-        agent.speed = chaseSpeed;
-
-        agent.SetDestination(player.position);
+        }
 
         if (!CanSeePlayer())
         {
-            // Por enquanto continua perseguindo.
-            // Podemos adicionar investigação depois.
+            StartInvestigation(lastKnownPlayerPosition);
+            return;
         }
 
-        float distance =
-            Vector3.Distance(
-                transform.position,
-                player.position
-            );
+        lastKnownPlayerPosition = player.position;
 
-        if (distance <= attackDistance)
+        agent.isStopped = false;
+        agent.speed = chaseSpeed;
+        agent.SetDestination(lastKnownPlayerPosition);
+
+        if (Vector3.Distance(
+                transform.position,
+                player.position) <= attackDistance)
         {
             state = State.Attack;
         }
     }
 
 
-    // ATAQUE / MORTE
+    // ATAQUE
     private void Attack()
     {
+        if (isAttacking)
+            return;
+
+        isAttacking = true;
+
         agent.isStopped = true;
+        agent.velocity = Vector3.zero;
 
         SceneManager.LoadScene("GameOver");
     }
@@ -149,44 +215,32 @@ public class EnemyAI : MonoBehaviour
     // DETECÇÃO
     private bool CanSeePlayer()
     {
-        if (player == null)
+        if (player == null || playerIsHidden)
             return false;
 
-        Vector3 origin =
-            visionPoint != null
-                ? visionPoint.position
-                : transform.position + Vector3.up;
+        Vector3 origin = visionPoint != null
+            ? visionPoint.position
+            : transform.position + Vector3.up;
 
-        Vector3 direction =
-            player.position - origin;
-
+        Vector3 direction = player.position - origin;
         float distance = direction.magnitude;
 
         if (distance > visionDistance)
             return false;
 
-        direction.Normalize();
-
-        float angle =
-            Vector3.Angle(
+        if (Vector3.Angle(
                 transform.forward,
-                direction
-            );
-
-        if (angle > visionAngle * 0.5f)
+                direction) > visionAngle * 0.5f)
             return false;
 
         if (Physics.Raycast(
-            origin,
-            direction,
-            out RaycastHit hit,
-            visionDistance))
+                origin,
+                direction.normalized,
+                out RaycastHit hit,
+                visionDistance))
         {
-            if (hit.transform == player ||
-                hit.transform.IsChildOf(player))
-            {
-                return true;
-            }
+            return hit.transform == player ||
+                   hit.transform.IsChildOf(player);
         }
 
         return false;
@@ -196,23 +250,25 @@ public class EnemyAI : MonoBehaviour
     // COMEÇAR PERSEGUIÇÃO
     private void StartChase()
     {
-        if (state == State.Chase)
+        if (state == State.Chase ||
+            state == State.Attack)
             return;
 
         state = State.Chase;
 
+        if (player != null)
+            lastKnownPlayerPosition = player.position;
+
+        agent.isStopped = false;
         agent.speed = chaseSpeed;
 
-        // Som de descoberta
-        if (!playedSpottedSound)
+        if (spottedSound != null &&
+            !playedSpottedSound)
         {
-            if (spottedSound != null)
-                spottedSound.Play();
-
+            spottedSound.Play();
             playedSpottedSound = true;
         }
 
-        // Troca música
         if (normalMusic != null)
             normalMusic.Stop();
 
@@ -224,34 +280,115 @@ public class EnemyAI : MonoBehaviour
     }
 
 
-    // TROCAR ROTA
-    public void SelectRoute(int route)
+    // COMEÇAR INVESTIGAÇÃO
+    private void StartInvestigation(Vector3 position)
     {
-        currentRoute = Mathf.Clamp(route, 1, 3);
+        if (state == State.Attack)
+            return;
 
-        switch (currentRoute)
+        state = State.Investigate;
+
+        investigatePosition = position;
+        investigateTimer = investigateWaitTime;
+        investigateElapsed = 0f;
+
+        agent.isStopped = false;
+        agent.speed = chaseSpeed;
+        agent.SetDestination(position);
+    }
+
+
+    // VOLTAR PARA PATRULHA
+    private void ReturnToPatrol()
+    {
+        state = State.Patrol;
+
+        agent.isStopped = false;
+        agent.speed = patrolSpeed;
+        
+        playedSpottedSound = false;
+
+        if (chaseMusic != null)
+            chaseMusic.Stop();
+
+        if (normalMusic != null &&
+            !normalMusic.isPlaying)
         {
-            case 1:
-                currentRoutePoints = route1;
-                break;
-
-            case 2:
-                currentRoutePoints = route2;
-                break;
-
-            case 3:
-                currentRoutePoints = route3;
-                break;
+            normalMusic.Play();
         }
-
-        currentPoint = 0;
 
         if (currentRoutePoints != null &&
             currentRoutePoints.Length > 0)
         {
             agent.SetDestination(
-                currentRoutePoints[0].position
+                currentRoutePoints[currentPoint].position
             );
+        }
+    }
+
+
+    // TROCAR ROTA
+    public void SelectRoute(int route)
+    {
+        currentRoute = Mathf.Clamp(route, 1, 8);
+
+        currentRoutePoints = currentRoute switch
+        {
+            1 => route1,
+            2 => route2,
+            3 => route3,
+            4 => route4,
+            5 => route5,
+            6 => route6,
+            7 => route7,
+            8 => route8,
+            _ => route1
+        };
+
+        currentPoint = 0;
+
+        if (currentRoutePoints == null ||
+            currentRoutePoints.Length == 0)
+            return;
+
+        if (state == State.Chase ||
+            state == State.Investigate ||
+            state == State.Attack)
+            return;
+
+        agent.SetDestination(
+            currentRoutePoints[currentPoint].position
+        );
+    }
+
+
+    // ESCONDER PLAYER
+    public void SetPlayerHidden(bool hidden)
+    {
+        playerIsHidden = hidden;
+
+        if (hidden && state == State.Chase)
+            StartInvestigation(lastKnownPlayerPosition);
+    }
+
+
+    // DEFINIR ÚLTIMA POSIÇÃO
+    public void SetLastKnownPosition(Vector3 position)
+    {
+        lastKnownPlayerPosition = position;
+
+        if (state == State.Chase)
+            StartInvestigation(position);
+    }
+
+
+    // OUVIR SOM
+    public void HearNoise(Vector3 position)
+    {
+        if (state != State.Chase &&
+            state != State.Attack)
+        {
+            StartInvestigation(position);
         }
     }
 
@@ -259,10 +396,9 @@ public class EnemyAI : MonoBehaviour
     // DEBUG VISUAL
     private void OnDrawGizmosSelected()
     {
-        Vector3 origin =
-            visionPoint != null
-                ? visionPoint.position
-                : transform.position + Vector3.up;
+        Vector3 origin = visionPoint != null
+            ? visionPoint.position
+            : transform.position + Vector3.up;
 
         Gizmos.color = Color.red;
 
@@ -270,5 +406,34 @@ public class EnemyAI : MonoBehaviour
             origin,
             transform.forward * visionDistance
         );
+
+        Gizmos.color = Color.yellow;
+
+        Gizmos.DrawRay(
+            origin,
+            Quaternion.Euler(
+                0f,
+                -visionAngle * 0.5f,
+                0f
+            ) * transform.forward * visionDistance
+        );
+
+        Gizmos.DrawRay(
+            origin,
+            Quaternion.Euler(
+                0f,
+                visionAngle * 0.5f,
+                0f
+            ) * transform.forward * visionDistance
+        );
+
+        if (state == State.Investigate)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawSphere(
+                investigatePosition,
+                0.3f
+            );
+        }
     }
 }
