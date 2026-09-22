@@ -2364,7 +2364,7 @@ MonoBehaviour:
   agent: {fileID: 810463213}
   player: {fileID: 591546661}
   visionPoint: {fileID: 1097592021}
-  visionDistance: 20
+  visionDistance: 15
   visionAngle: 90
   patrolSpeed: 3.5
   chaseSpeed: 6
