@@ -6,14 +6,17 @@ public class ButtonVR : MonoBehaviour
     public GameObject button;
     public UnityEvent onPress;
     public UnityEvent onRelease;
-    
-    [Header("Configurações")]
-    public float pressOffset = 0.012f; 
-    public Light luzLanterna; 
 
-    GameObject presser;
-    AudioSource sound;
-    bool isPressed;
+    [Header("Configurações")]
+    public float pressOffset = 0.012f;
+    public Light flashlight;
+
+    [Header("Configuração da Lanterna")]
+    public bool flashlightStartsOn = false;
+
+    private GameObject presser;
+    private AudioSource sound;
+    private bool isPressed;
     private Vector3 startPosition;
 
     void Start()
@@ -25,10 +28,10 @@ public class ButtonVR : MonoBehaviour
         {
             startPosition = button.transform.localPosition;
         }
-        
-        if (luzLanterna != null)
+
+        if (flashlight != null)
         {
-            luzLanterna.enabled = false;
+            flashlight.enabled = flashlightStartsOn;
         }
     }
 
@@ -36,15 +39,22 @@ public class ButtonVR : MonoBehaviour
     {
         if (!isPressed && button != null)
         {
-            button.transform.localPosition = new Vector3(startPosition.x, startPosition.y - pressOffset, startPosition.z);
-            
+            button.transform.localPosition = new Vector3(
+                startPosition.x,
+                startPosition.y - pressOffset,
+                startPosition.z
+            );
+
             presser = other.gameObject;
             onPress.Invoke();
-            
-            if (sound != null) sound.Play();
-            isPressed = true;
 
-            ToggleLantern();
+            if (sound != null)
+            {
+                sound.Play();
+            }
+
+            isPressed = true;
+            ToggleFlashlight();
         }
     }
 
@@ -53,21 +63,23 @@ public class ButtonVR : MonoBehaviour
         if (isPressed && other.gameObject == presser && button != null)
         {
             button.transform.localPosition = startPosition;
-            
+
             onRelease.Invoke();
             isPressed = false;
         }
     }
 
-    public void ToggleLantern()
+    public void ToggleFlashlight()
     {
-        if (luzLanterna != null)
+        if (flashlight != null)
         {
-            luzLanterna.enabled = !luzLanterna.enabled;
+            flashlight.enabled = !flashlight.enabled;
         }
         else
         {
-            Debug.LogWarning("Nenhuma Light foi atribuída no campo 'luzLanterna'!");
+            Debug.LogWarning(
+                "Nenhuma luz foi atribuída no campo 'Flashlight'!"
+            );
         }
     }
 }

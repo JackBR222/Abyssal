@@ -4,168 +4,187 @@ using UnityEngine.XR.Interaction.Toolkit;
 [RequireComponent(typeof(AudioSource))]
 public class SubmarineController : MonoBehaviour
 {
-    [Header("Alavancas Físicas")]
-    [SerializeField] private HingeJoint leftLeverHinge;
-    [SerializeField] private HingeJoint rightLeverHinge;
+    [Header("Alavancas")]
+    [SerializeField] private HingeJoint leftLeverHinge, rightLeverHinge;
 
-    [Header("Configurações de Movimento")]
+    [Header("Movimento")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float rotateSpeed = 40f;
+    [SerializeField] private float acceleration = 0.8f;
+    [SerializeField] private float deceleration = 0.15f;
 
-    [Header("Física do Submarino")]
+    [Header("Inércia")]
+    [SerializeField] private float turnAcceleration = 1.5f;
+    [SerializeField] private float turnDeceleration = 0.4f;
+
+    [Header("Física")]
     [SerializeField] private Rigidbody submarineRb;
 
-    [Header("Configurações de Áudio")]
+    [Header("Áudio")]
     [SerializeField] private AudioClip engineSound;
-    [Range(0f, 1f)] [SerializeField] private float minVolume = 0.1f;
-    [Range(0f, 1f)] [SerializeField] private float maxVolume = 0.8f;
-    [SerializeField] private float minPitch = 0.6f;
-    [SerializeField] private float maxPitch = 1.5f;
+    [Range(0f, 1f)]
+    [SerializeField] private float minVolume = 0.1f, maxVolume = 0.8f;
+    [SerializeField] private float minPitch = 0.6f, maxPitch = 1.5f;
 
-    private Rigidbody leftLeverRb;
-    private Rigidbody rightLeverRb;
-    private XRGrabInteractable leftGrab;
-    private XRGrabInteractable rightGrab;
+    private Rigidbody leftLeverRb, rightLeverRb;
+    private XRGrabInteractable leftGrab, rightGrab;
     private AudioSource audioSource;
+
+    private float currentSpeed;
+    private float currentTurn;
 
     void Start()
     {
-        if (submarineRb == null) 
+        if (submarineRb == null)
             submarineRb = GetComponent<Rigidbody>();
-        
-        // Trava rotação em X e Z para evitar que o submarino capote
-        submarineRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
+        submarineRb.constraints = RigidbodyConstraints.FreezeRotationX |
+                                  RigidbodyConstraints.FreezeRotationZ;
 
         if (leftLeverHinge == null || rightLeverHinge == null)
         {
-            Debug.LogError("Por favor, atribua os HingeJoints das alavancas no Inspector!");
+            Debug.LogError("Atribua os HingeJoints das alavancas no Inspector!");
+            enabled = false;
             return;
         }
 
-        // Cache das referências das alavancas
         leftLeverRb = leftLeverHinge.GetComponent<Rigidbody>();
         rightLeverRb = rightLeverHinge.GetComponent<Rigidbody>();
         leftGrab = leftLeverHinge.GetComponent<XRGrabInteractable>();
         rightGrab = rightLeverHinge.GetComponent<XRGrabInteractable>();
 
-        SetupAudio();
+        audioSource = GetComponent<AudioSource>();
+        audioSource.clip = engineSound;
+        audioSource.loop = true;
+        audioSource.playOnAwake = false;
+        audioSource.volume = minVolume;
+        audioSource.pitch = minPitch;
+
+        if (engineSound != null)
+            audioSource.Play();
+        else
+            Debug.LogWarning("Atribua o som do motor no Inspector!");
     }
 
     void Update()
     {
-        // Controla o estado kinematic das alavancas na zona morta
         UpdateLeverKinematic(leftLeverHinge, leftLeverRb, leftGrab);
         UpdateLeverKinematic(rightLeverHinge, rightLeverRb, rightGrab);
     }
 
     void FixedUpdate()
     {
-        if (leftLeverHinge == null || rightLeverHinge == null) return;
+        float left = GetLeverValue(leftLeverHinge);
+        float right = GetLeverValue(rightLeverHinge);
 
-        // Obtém a entrada normalizada (-1 a 1) das alavancas
-        float leftLeverValue = GetLeverValue(leftLeverHinge);
-        float rightLeverValue = GetLeverValue(rightLeverHinge);
+        float forward = (left + right) / 2f;
+        float turn = left - right;
 
-        // Movimento para frente/trás (média das alavancas)
-        float forwardInput = (leftLeverValue + rightLeverValue) / 2f;
-        Vector3 movement = transform.forward * forwardInput * moveSpeed * Time.fixedDeltaTime;
-        submarineRb.MovePosition(submarineRb.position + movement);
+        // Inércia de avanço: acelera e desacelera gradualmente.
+        float targetSpeed = forward * moveSpeed;
 
-        // Rotação/Giro (diferença entre as alavancas)
-        float turnInput = leftLeverValue - rightLeverValue;
-        float turnAmount = turnInput * rotateSpeed * Time.fixedDeltaTime;
-        Quaternion turnRotation = Quaternion.Euler(0f, turnAmount, 0f);
-        submarineRb.MoveRotation(submarineRb.rotation * turnRotation);
+        float speedRate = Mathf.Abs(forward) > 0.01f
+            ? acceleration
+            : deceleration;
 
-        // Atualiza volume e pitch do motor
-        UpdateEngineAudio(forwardInput, turnInput);
-    }
+        currentSpeed = Mathf.MoveTowards(
+            currentSpeed,
+            targetSpeed,
+            speedRate * moveSpeed * Time.fixedDeltaTime
+        );
 
-    private void SetupAudio()
-    {
-        audioSource = GetComponent<AudioSource>();
-        audioSource.clip = engineSound;
-        audioSource.loop = true;
-        audioSource.playOnAwake = true;
+        // Inércia de rotação: as curvas também ficam mais suaves.
+        float targetTurn = turn;
 
-        if (engineSound != null)
+        float turnRate = Mathf.Abs(turn) > 0.01f
+            ? turnAcceleration
+            : turnDeceleration;
+
+        currentTurn = Mathf.MoveTowards(
+            currentTurn,
+            targetTurn,
+            turnRate * Time.fixedDeltaTime
+        );
+
+        // Movimento com velocidade persistente.
+        submarineRb.MovePosition(
+            submarineRb.position +
+            transform.forward * currentSpeed * Time.fixedDeltaTime
+        );
+
+        // Rotação gradual com inércia.
+        submarineRb.MoveRotation(
+            submarineRb.rotation *
+            Quaternion.Euler(
+                0f,
+                currentTurn * rotateSpeed * Time.fixedDeltaTime,
+                0f
+            )
+        );
+
+        // Áudio acompanha a velocidade e a intensidade da curva.
+        if (audioSource != null && audioSource.isPlaying)
         {
-            // CORREÇÃO: Força áudio a iniciar no mínimo, evitando o estouro de som alto
-            audioSource.volume = minVolume;
-            audioSource.pitch = minPitch;
+            float intensity = Mathf.Max(
+                Mathf.Abs(currentSpeed / Mathf.Max(moveSpeed, 0.01f)),
+                Mathf.Abs(currentTurn)
+            );
 
-            audioSource.Play();
-        }
-        else
-        {
-            Debug.LogWarning("Nenhum AudioClip de motor foi atribuído no Inspector!");
-        }
-    }
+            intensity = Mathf.Clamp01(intensity);
 
-    private void UpdateEngineAudio(float forward, float turn)
-    {
-        if (audioSource == null || !audioSource.isPlaying) return;
+            audioSource.volume = Mathf.Lerp(
+                audioSource.volume,
+                Mathf.Lerp(minVolume, maxVolume, intensity),
+                Time.fixedDeltaTime * 5f
+            );
 
-        // Define a intensidade com base no maior comando atual
-        float inputIntensity = Mathf.Max(Mathf.Abs(forward), Mathf.Abs(turn));
-
-        // Transiciona suavemente o volume e tom (pitch) usando Lerp
-        audioSource.volume = Mathf.Lerp(audioSource.volume, Mathf.Lerp(minVolume, maxVolume, inputIntensity), Time.fixedDeltaTime * 5f);
-        audioSource.pitch = Mathf.Lerp(audioSource.pitch, Mathf.Lerp(minPitch, maxPitch, inputIntensity), Time.fixedDeltaTime * 5f);
-    }
-
-    private void UpdateLeverKinematic(HingeJoint hinge, Rigidbody rb, XRGrabInteractable grab)
-    {
-        if (hinge == null || rb == null || grab == null) return;
-
-        float currentAngle = hinge.angle;
-        JointLimits limits = hinge.limits;
-        float normalized = 0f;
-
-        if (currentAngle > 0 && limits.max != 0) normalized = currentAngle / limits.max;
-        else if (currentAngle < 0 && limits.min != 0) normalized = -(currentAngle / limits.min);
-
-        bool isInNeutralZone = Mathf.Abs(normalized) < 0.05f;
-
-        // Trava a alavanca se solta na zona neutra para evitar oscilações físicas
-        if (!grab.isSelected && isInNeutralZone)
-        {
-            if (!rb.isKinematic)
-            {
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-                rb.isKinematic = true;
-            }
-        }
-        else
-        {
-            if (rb.isKinematic)
-            {
-                rb.isKinematic = false;
-            }
+            audioSource.pitch = Mathf.Lerp(
+                audioSource.pitch,
+                Mathf.Lerp(minPitch, maxPitch, intensity),
+                Time.fixedDeltaTime * 5f
+            );
         }
     }
 
     private float GetLeverValue(HingeJoint hinge)
     {
-        float currentAngle = hinge.angle;
+        if (hinge == null)
+            return 0f;
+
+        float angle = hinge.angle;
         JointLimits limits = hinge.limits;
-        float normalized = 0f;
 
-        // Converte o ângulo físico em um valor de -1 a 1
-        if (currentAngle > 0 && limits.max != 0)
+        float value = angle > 0 && limits.max != 0
+            ? angle / limits.max
+            : angle < 0 && limits.min != 0
+                ? -(angle / limits.min)
+                : 0f;
+
+        return Mathf.Abs(value) < 0.05f
+            ? 0f
+            : Mathf.Clamp(value, -1f, 1f);
+    }
+
+    private void UpdateLeverKinematic(
+        HingeJoint hinge,
+        Rigidbody rb,
+        XRGrabInteractable grab)
+    {
+        if (hinge == null || rb == null || grab == null)
+            return;
+
+        float value = GetLeverValue(hinge);
+        bool neutral = Mathf.Abs(value) < 0.05f;
+
+        if (!grab.isSelected && neutral)
         {
-            normalized = currentAngle / limits.max;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
         }
-        else if (currentAngle < 0 && limits.min != 0)
+        else
         {
-            normalized = -(currentAngle / limits.min);
+            rb.isKinematic = false;
         }
-
-        // Aplica zona morta de 5%
-        if (Mathf.Abs(normalized) < 0.05f) 
-            normalized = 0f;
-
-        return Mathf.Clamp(normalized, -1f, 1f);
     }
 }
