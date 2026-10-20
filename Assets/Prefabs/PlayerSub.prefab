@@ -484,7 +484,7 @@ GameObject:
   - component: {fileID: 2022496208999604881}
   m_Layer: 8
   m_Name: PlayerSub
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -523,7 +523,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -622,7 +622,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leftLeverHinge: {fileID: 2685444405481338215}
   rightLeverHinge: {fileID: 109608827894239881}
-  moveSpeed: 6
+  moveSpeed: 7
   rotateSpeed: 35
   acceleration: 0.8
   deceleration: 0.15

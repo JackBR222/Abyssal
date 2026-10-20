@@ -4,13 +4,7 @@ using UnityEngine.SceneManagement;
 
 public class EnemyAI : MonoBehaviour
 {
-    public enum State
-    {
-        Patrol,
-        Investigate,
-        Chase,
-        Attack
-    }
+    public enum State { Patrol, Investigate, Chase, Attack }
 
     [Header("Referências")]
     [SerializeField] private NavMeshAgent agent;
@@ -26,8 +20,11 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float chaseSpeed = 6f;
 
     [Header("Distâncias")]
-    [SerializeField] private float attackDistance = 1.8f;
     [SerializeField] private float investigateDistance = 1.5f;
+
+    [Header("Colliders circulares")]
+    [SerializeField] private SphereCollider visionTrigger;
+    [SerializeField] private SphereCollider attackTrigger;
 
     [Header("Investigação")]
     [SerializeField] private float investigateWaitTime = 4f;
@@ -42,7 +39,6 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private Transform[] route6;
     [SerializeField] private Transform[] route7;
     [SerializeField] private Transform[] route8;
-
     [SerializeField] private int currentRoute = 1;
 
     [Header("Música")]
@@ -54,7 +50,6 @@ public class EnemyAI : MonoBehaviour
 
     private Transform[] currentRoutePoints;
     private int currentPoint;
-
     private State state = State.Patrol;
 
     private Vector3 lastKnownPlayerPosition;
@@ -66,7 +61,34 @@ public class EnemyAI : MonoBehaviour
     private bool playedSpottedSound;
     private bool isAttacking;
     private bool playerIsHidden;
+    private bool playerInVisionTrigger;
+    private bool playerInAttackTrigger;
 
+    private void Awake()
+    {
+        SetupTriggers();
+    }
+
+    private void SetupTriggers()
+    {
+        SetupTrigger(visionTrigger, true);
+        SetupTrigger(attackTrigger, false);
+    }
+
+    private void SetupTrigger(SphereCollider trigger, bool isVision)
+    {
+        if (trigger == null) return;
+
+        trigger.isTrigger = true;
+
+        EnemyProximityTrigger detector =
+            trigger.GetComponent<EnemyProximityTrigger>();
+
+        if (detector == null)
+            detector = trigger.gameObject.AddComponent<EnemyProximityTrigger>();
+
+        detector.Initialize(this, isVision);
+    }
 
     private void Start()
     {
@@ -75,67 +97,46 @@ public class EnemyAI : MonoBehaviour
         if (normalMusic != null)
             normalMusic.Play();
 
-        agent.speed = patrolSpeed;
+        if (agent != null)
+            agent.speed = patrolSpeed;
     }
-
 
     private void Update()
     {
         switch (state)
         {
-            case State.Patrol:
-                Patrol();
-                break;
-
-            case State.Investigate:
-                Investigate();
-                break;
-
-            case State.Chase:
-                Chase();
-                break;
-
-            case State.Attack:
-                Attack();
-                break;
+            case State.Patrol: Patrol(); break;
+            case State.Investigate: Investigate(); break;
+            case State.Chase: Chase(); break;
+            case State.Attack: Attack(); break;
         }
     }
-
 
     // PATRULHA
     private void Patrol()
     {
-        if (currentRoutePoints == null ||
-            currentRoutePoints.Length == 0)
+        if (currentRoutePoints == null || currentRoutePoints.Length == 0)
             return;
 
         agent.isStopped = false;
         agent.speed = patrolSpeed;
 
         Transform point = currentRoutePoints[currentPoint];
-
-        if (point == null)
-            return;
+        if (point == null) return;
 
         agent.SetDestination(point.position);
 
-        if (!agent.pathPending &&
-            agent.remainingDistance <= 0.5f)
-        {
-            currentPoint =
-                (currentPoint + 1) %
-                currentRoutePoints.Length;
-        }
+        if (!agent.pathPending && agent.remainingDistance <= 0.5f)
+            currentPoint = (currentPoint + 1) % currentRoutePoints.Length;
 
-        if (CanSeePlayer())
+        if (CanSeePlayer() || playerInVisionTrigger)
             StartChase();
     }
-
 
     // INVESTIGAÇÃO
     private void Investigate()
     {
-        if (CanSeePlayer())
+        if (CanSeePlayer() || playerInVisionTrigger)
         {
             StartChase();
             return;
@@ -153,9 +154,8 @@ public class EnemyAI : MonoBehaviour
         agent.speed = chaseSpeed;
         agent.SetDestination(investigatePosition);
 
-        if (Vector3.Distance(
-                transform.position,
-                investigatePosition) <= investigateDistance)
+        if (Vector3.Distance(transform.position, investigatePosition)
+            <= investigateDistance)
         {
             agent.isStopped = true;
             investigateTimer -= Time.deltaTime;
@@ -165,18 +165,22 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-
     // PERSEGUIÇÃO
     private void Chase()
     {
-        if (player == null ||
-            playerIsHidden)
+        if (player == null || playerIsHidden)
         {
             StartInvestigation(lastKnownPlayerPosition);
             return;
         }
 
-        if (!CanSeePlayer())
+        if (playerInAttackTrigger)
+        {
+            state = State.Attack;
+            return;
+        }
+
+        if (!CanSeePlayer() && !playerInVisionTrigger)
         {
             StartInvestigation(lastKnownPlayerPosition);
             return;
@@ -187,21 +191,12 @@ public class EnemyAI : MonoBehaviour
         agent.isStopped = false;
         agent.speed = chaseSpeed;
         agent.SetDestination(lastKnownPlayerPosition);
-
-        if (Vector3.Distance(
-                transform.position,
-                player.position) <= attackDistance)
-        {
-            state = State.Attack;
-        }
     }
-
 
     // ATAQUE
     private void Attack()
     {
-        if (isAttacking)
-            return;
+        if (isAttacking) return;
 
         isAttacking = true;
 
@@ -211,8 +206,7 @@ public class EnemyAI : MonoBehaviour
         SceneManager.LoadScene("GameOver");
     }
 
-
-    // DETECÇÃO
+    // DETECÇÃO VISUAL
     private bool CanSeePlayer()
     {
         if (player == null || playerIsHidden)
@@ -223,21 +217,16 @@ public class EnemyAI : MonoBehaviour
             : transform.position + Vector3.up;
 
         Vector3 direction = player.position - origin;
-        float distance = direction.magnitude;
 
-        if (distance > visionDistance)
+        if (direction.magnitude > visionDistance)
             return false;
 
-        if (Vector3.Angle(
-                transform.forward,
-                direction) > visionAngle * 0.5f)
+        if (Vector3.Angle(transform.forward, direction)
+            > visionAngle * 0.5f)
             return false;
 
-        if (Physics.Raycast(
-                origin,
-                direction.normalized,
-                out RaycastHit hit,
-                visionDistance))
+        if (Physics.Raycast(origin, direction.normalized,
+            out RaycastHit hit, visionDistance))
         {
             return hit.transform == player ||
                    hit.transform.IsChildOf(player);
@@ -246,12 +235,32 @@ public class EnemyAI : MonoBehaviour
         return false;
     }
 
+    // EVENTOS DOS COLLIDERS
+    public void SetPlayerInTrigger(bool isVision, bool inside)
+    {
+        if (isVision)
+        {
+            playerInVisionTrigger = inside;
+
+            if (inside && !playerIsHidden &&
+                state != State.Chase && state != State.Attack)
+                StartChase();
+        }
+        else
+        {
+            playerInAttackTrigger = inside;
+
+            if (inside && !playerIsHidden &&
+                state == State.Chase)
+                state = State.Attack;
+        }
+    }
 
     // COMEÇAR PERSEGUIÇÃO
     private void StartChase()
     {
-        if (state == State.Chase ||
-            state == State.Attack)
+        if (state == State.Chase || state == State.Attack ||
+            playerIsHidden)
             return;
 
         state = State.Chase;
@@ -262,8 +271,7 @@ public class EnemyAI : MonoBehaviour
         agent.isStopped = false;
         agent.speed = chaseSpeed;
 
-        if (spottedSound != null &&
-            !playedSpottedSound)
+        if (spottedSound != null && !playedSpottedSound)
         {
             spottedSound.Play();
             playedSpottedSound = true;
@@ -272,22 +280,16 @@ public class EnemyAI : MonoBehaviour
         if (normalMusic != null)
             normalMusic.Stop();
 
-        if (chaseMusic != null &&
-            !chaseMusic.isPlaying)
-        {
+        if (chaseMusic != null && !chaseMusic.isPlaying)
             chaseMusic.Play();
-        }
     }
-
 
     // COMEÇAR INVESTIGAÇÃO
     private void StartInvestigation(Vector3 position)
     {
-        if (state == State.Attack)
-            return;
+        if (state == State.Attack) return;
 
         state = State.Investigate;
-
         investigatePosition = position;
         investigateTimer = investigateWaitTime;
         investigateElapsed = 0f;
@@ -297,35 +299,24 @@ public class EnemyAI : MonoBehaviour
         agent.SetDestination(position);
     }
 
-
     // VOLTAR PARA PATRULHA
     private void ReturnToPatrol()
     {
         state = State.Patrol;
-
         agent.isStopped = false;
         agent.speed = patrolSpeed;
-        
         playedSpottedSound = false;
 
         if (chaseMusic != null)
             chaseMusic.Stop();
 
-        if (normalMusic != null &&
-            !normalMusic.isPlaying)
-        {
+        if (normalMusic != null && !normalMusic.isPlaying)
             normalMusic.Play();
-        }
 
         if (currentRoutePoints != null &&
             currentRoutePoints.Length > 0)
-        {
-            agent.SetDestination(
-                currentRoutePoints[currentPoint].position
-            );
-        }
+            agent.SetDestination(currentRoutePoints[currentPoint].position);
     }
-
 
     // TROCAR ROTA
     public void SelectRoute(int route)
@@ -347,20 +338,15 @@ public class EnemyAI : MonoBehaviour
 
         currentPoint = 0;
 
-        if (currentRoutePoints == null ||
-            currentRoutePoints.Length == 0)
+        if (currentRoutePoints == null || currentRoutePoints.Length == 0)
             return;
 
-        if (state == State.Chase ||
-            state == State.Investigate ||
+        if (state == State.Chase || state == State.Investigate ||
             state == State.Attack)
             return;
 
-        agent.SetDestination(
-            currentRoutePoints[currentPoint].position
-        );
+        agent.SetDestination(currentRoutePoints[currentPoint].position);
     }
-
 
     // ESCONDER PLAYER
     public void SetPlayerHidden(bool hidden)
@@ -371,7 +357,6 @@ public class EnemyAI : MonoBehaviour
             StartInvestigation(lastKnownPlayerPosition);
     }
 
-
     // DEFINIR ÚLTIMA POSIÇÃO
     public void SetLastKnownPosition(Vector3 position)
     {
@@ -381,17 +366,12 @@ public class EnemyAI : MonoBehaviour
             StartInvestigation(position);
     }
 
-
     // OUVIR SOM
     public void HearNoise(Vector3 position)
     {
-        if (state != State.Chase &&
-            state != State.Attack)
-        {
+        if (state != State.Chase && state != State.Attack)
             StartInvestigation(position);
-        }
     }
-
 
     // DEBUG VISUAL
     private void OnDrawGizmosSelected()
@@ -401,39 +381,64 @@ public class EnemyAI : MonoBehaviour
             : transform.position + Vector3.up;
 
         Gizmos.color = Color.red;
-
-        Gizmos.DrawRay(
-            origin,
-            transform.forward * visionDistance
-        );
+        Gizmos.DrawRay(origin, transform.forward * visionDistance);
 
         Gizmos.color = Color.yellow;
+        Gizmos.DrawRay(origin,
+            Quaternion.Euler(0f, -visionAngle * 0.5f, 0f)
+            * transform.forward * visionDistance);
 
-        Gizmos.DrawRay(
-            origin,
-            Quaternion.Euler(
-                0f,
-                -visionAngle * 0.5f,
-                0f
-            ) * transform.forward * visionDistance
-        );
-
-        Gizmos.DrawRay(
-            origin,
-            Quaternion.Euler(
-                0f,
-                visionAngle * 0.5f,
-                0f
-            ) * transform.forward * visionDistance
-        );
+        Gizmos.DrawRay(origin,
+            Quaternion.Euler(0f, visionAngle * 0.5f, 0f)
+            * transform.forward * visionDistance);
 
         if (state == State.Investigate)
         {
             Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(
-                investigatePosition,
-                0.3f
-            );
+            Gizmos.DrawSphere(investigatePosition, 0.3f);
         }
+    }
+}
+
+// AUXILIAR: identifica separadamente cada collider de proximidade.
+public class EnemyProximityTrigger : MonoBehaviour
+{
+    private EnemyAI enemy;
+    private bool isVision;
+    private int playerColliderCount;
+
+    public void Initialize(EnemyAI owner, bool vision)
+    {
+        enemy = owner;
+        isVision = vision;
+    }
+
+    private bool IsPlayer(Collider other)
+    {
+        Transform target = enemy != null
+            ? other.transform
+            : null;
+
+        return target != null &&
+               (target.CompareTag("Player") ||
+                target.root.CompareTag("Player"));
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (enemy == null || !IsPlayer(other)) return;
+
+        playerColliderCount++;
+        enemy.SetPlayerInTrigger(isVision, true);
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (enemy == null || !IsPlayer(other)) return;
+
+        playerColliderCount = Mathf.Max(0, playerColliderCount - 1);
+
+        if (playerColliderCount == 0)
+            enemy.SetPlayerInTrigger(isVision, false);
     }
 }
