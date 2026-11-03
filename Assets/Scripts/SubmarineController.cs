@@ -1,11 +1,12 @@
+
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(AudioSource))]
 public class SubmarineController : MonoBehaviour
 {
     [Header("Alavancas")]
-    [SerializeField] private HingeJoint leftLeverHinge, rightLeverHinge;
+    [SerializeField] private CrossLever leftLever;
+    [SerializeField] private CrossLever rightLever;
 
     [Header("Movimento")]
     [SerializeField] private float moveSpeed = 5f;
@@ -22,38 +23,42 @@ public class SubmarineController : MonoBehaviour
 
     [Header("Áudio")]
     [SerializeField] private AudioClip engineSound;
+
     [Range(0f, 1f)]
     [SerializeField] private float minVolume = 0.1f, maxVolume = 0.8f;
+
     [SerializeField] private float minPitch = 0.6f, maxPitch = 1.5f;
 
-    private Rigidbody leftLeverRb, rightLeverRb;
-    private XRGrabInteractable leftGrab, rightGrab;
     private AudioSource audioSource;
 
     private float currentSpeed;
     private float currentTurn;
 
-    void Start()
+    private void Start()
     {
         if (submarineRb == null)
             submarineRb = GetComponent<Rigidbody>();
 
-        submarineRb.constraints = RigidbodyConstraints.FreezeRotationX |
-                                  RigidbodyConstraints.FreezeRotationZ;
-
-        if (leftLeverHinge == null || rightLeverHinge == null)
+        if (submarineRb == null)
         {
-            Debug.LogError("Atribua os HingeJoints das alavancas no Inspector!");
+            Debug.LogError("Submarino precisa de um Rigidbody!");
             enabled = false;
             return;
         }
 
-        leftLeverRb = leftLeverHinge.GetComponent<Rigidbody>();
-        rightLeverRb = rightLeverHinge.GetComponent<Rigidbody>();
-        leftGrab = leftLeverHinge.GetComponent<XRGrabInteractable>();
-        rightGrab = rightLeverHinge.GetComponent<XRGrabInteractable>();
+        if (leftLever == null || rightLever == null)
+        {
+            Debug.LogError("Atribua as duas alavancas no Inspector!");
+            enabled = false;
+            return;
+        }
+
+        submarineRb.constraints |=
+            RigidbodyConstraints.FreezeRotationX |
+            RigidbodyConstraints.FreezeRotationZ;
 
         audioSource = GetComponent<AudioSource>();
+
         audioSource.clip = engineSound;
         audioSource.loop = true;
         audioSource.playOnAwake = false;
@@ -66,21 +71,16 @@ public class SubmarineController : MonoBehaviour
             Debug.LogWarning("Atribua o som do motor no Inspector!");
     }
 
-    void Update()
+    private void FixedUpdate()
     {
-        UpdateLeverKinematic(leftLeverHinge, leftLeverRb, leftGrab);
-        UpdateLeverKinematic(rightLeverHinge, rightLeverRb, rightGrab);
-    }
+        // Lê os valores das duas alavancas.
+        float forward =
+            (leftLever.Forward + rightLever.Forward) / 2f;
 
-    void FixedUpdate()
-    {
-        float left = GetLeverValue(leftLeverHinge);
-        float right = GetLeverValue(rightLeverHinge);
+        float turn =
+            (leftLever.Turn + rightLever.Turn) / 2f;
 
-        float forward = (left + right) / 2f;
-        float turn = left - right;
-
-        // Inércia de avanço: acelera e desacelera gradualmente.
+        // MOVIMENTO DE AVANÇO E RECUO
         float targetSpeed = forward * moveSpeed;
 
         float speedRate = Mathf.Abs(forward) > 0.01f
@@ -93,7 +93,7 @@ public class SubmarineController : MonoBehaviour
             speedRate * moveSpeed * Time.fixedDeltaTime
         );
 
-        // Inércia de rotação: as curvas também ficam mais suaves.
+        // ROTAÇÃO
         float targetTurn = turn;
 
         float turnRate = Mathf.Abs(turn) > 0.01f
@@ -106,13 +106,13 @@ public class SubmarineController : MonoBehaviour
             turnRate * Time.fixedDeltaTime
         );
 
-        // Movimento com velocidade persistente.
+        // MOVIMENTAÇÃO FÍSICA
         submarineRb.MovePosition(
             submarineRb.position +
             transform.forward * currentSpeed * Time.fixedDeltaTime
         );
 
-        // Rotação gradual com inércia.
+        // ROTAÇÃO FÍSICA
         submarineRb.MoveRotation(
             submarineRb.rotation *
             Quaternion.Euler(
@@ -122,69 +122,31 @@ public class SubmarineController : MonoBehaviour
             )
         );
 
-        // Áudio acompanha a velocidade e a intensidade da curva.
-        if (audioSource != null && audioSource.isPlaying)
-        {
-            float intensity = Mathf.Max(
-                Mathf.Abs(currentSpeed / Mathf.Max(moveSpeed, 0.01f)),
-                Mathf.Abs(currentTurn)
-            );
-
-            intensity = Mathf.Clamp01(intensity);
-
-            audioSource.volume = Mathf.Lerp(
-                audioSource.volume,
-                Mathf.Lerp(minVolume, maxVolume, intensity),
-                Time.fixedDeltaTime * 5f
-            );
-
-            audioSource.pitch = Mathf.Lerp(
-                audioSource.pitch,
-                Mathf.Lerp(minPitch, maxPitch, intensity),
-                Time.fixedDeltaTime * 5f
-            );
-        }
+        UpdateAudio();
     }
 
-    private float GetLeverValue(HingeJoint hinge)
+    private void UpdateAudio()
     {
-        if (hinge == null)
-            return 0f;
-
-        float angle = hinge.angle;
-        JointLimits limits = hinge.limits;
-
-        float value = angle > 0 && limits.max != 0
-            ? angle / limits.max
-            : angle < 0 && limits.min != 0
-                ? -(angle / limits.min)
-                : 0f;
-
-        return Mathf.Abs(value) < 0.05f
-            ? 0f
-            : Mathf.Clamp(value, -1f, 1f);
-    }
-
-    private void UpdateLeverKinematic(
-        HingeJoint hinge,
-        Rigidbody rb,
-        XRGrabInteractable grab)
-    {
-        if (hinge == null || rb == null || grab == null)
+        if (audioSource == null || !audioSource.isPlaying)
             return;
 
-        float value = GetLeverValue(hinge);
-        bool neutral = Mathf.Abs(value) < 0.05f;
+        float intensity = Mathf.Max(
+            Mathf.Abs(currentSpeed / Mathf.Max(moveSpeed, 0.01f)),
+            Mathf.Abs(currentTurn)
+        );
 
-        if (!grab.isSelected && neutral)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = true;
-        }
-        else
-        {
-            rb.isKinematic = false;
-        }
+        intensity = Mathf.Clamp01(intensity);
+
+        audioSource.volume = Mathf.Lerp(
+            audioSource.volume,
+            Mathf.Lerp(minVolume, maxVolume, intensity),
+            Time.fixedDeltaTime * 5f
+        );
+
+        audioSource.pitch = Mathf.Lerp(
+            audioSource.pitch,
+            Mathf.Lerp(minPitch, maxPitch, intensity),
+            Time.fixedDeltaTime * 5f
+        );
     }
 }
