@@ -3,7 +3,22 @@ guid: 1af085d37e3d2154ebaf6892a89a5a48
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Grip
+    second: {fileID: 2100000, guid: 0ed1db73f3c00d94bad49fca360a7ec4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Handle
+    second: {fileID: 2100000, guid: 5524dc10d62c78348a60e042c111f041, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: HandleDetail
+    second: {fileID: 2100000, guid: 510c390ad9005e843a4d817d434e4d6d, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
