@@ -178,7 +178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e9eabb13c0b53a49a3e0168ee2d3bab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  submarineAI: {fileID: 332496559}
+  submarineReactions: {fileID: 332496560}
   locationIndex: 0
   activateOnlyOnce: 1
 --- !u!135 &94401667
@@ -259,10 +259,10 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: cfa5ff429eb3d974d8258fc5a9ddcd6e, type: 3}
+  m_Resource: {fileID: 8300000, guid: cfa5ff429eb3d974d8258fc5a9ddcd6e, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.8
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -354,10 +354,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 171373670071772041, guid: 568bc53abce96314a8ac74589375f476, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 978901654597784740, guid: 568bc53abce96314a8ac74589375f476, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11.2
@@ -406,10 +402,6 @@ PrefabInstance:
       propertyPath: 'enemies.Array.data[0]'
       value: 
       objectReference: {fileID: 2044615083}
-    - target: {fileID: 8715498176109768354, guid: 568bc53abce96314a8ac74589375f476, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -424,6 +416,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d040b999c0d79d41946e448b8f6f496, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &332496560 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 98222906686071393, guid: 568bc53abce96314a8ac74589375f476, type: 3}
+  m_PrefabInstance: {fileID: 332496558}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d983b2b871cb6ec40bcbdc376a77b8f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &492667184
@@ -789,7 +792,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e9eabb13c0b53a49a3e0168ee2d3bab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  submarineAI: {fileID: 332496559}
+  submarineReactions: {fileID: 332496560}
   locationIndex: 1
   activateOnlyOnce: 1
 --- !u!135 &680706294
@@ -1254,7 +1257,7 @@ GameObject:
   - component: {fileID: 1424449693}
   - component: {fileID: 1424449692}
   m_Layer: 0
-  m_Name: EnemyActivate
+  m_Name: AreaTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1272,7 +1275,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b74cbf548799c34aa86db4d6e096b22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyObject: {fileID: 2044615080}
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2044615080}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 332496559}
+        m_TargetAssemblyTypeName: SubAITutorial, Assembly-CSharp
+        m_MethodName: FinishTutorialEarly
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+  activateOnlyOnce: 1
+  destroyAfterActivation: 1
 --- !u!65 &1424449693
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1767,7 +1798,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -638, y: -232}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2044615080 stripped
 GameObject:
@@ -2349,6 +2380,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 898159035}
     - target: {fileID: 8988938940661558681, guid: 18634e621fde5da419b03b182f971a25, type: 3}
+      propertyPath: submarineReactions
+      value: 
+      objectReference: {fileID: 332496560}
+    - target: {fileID: 8988938940661558681, guid: 18634e621fde5da419b03b182f971a25, type: 3}
       propertyPath: 'route1.Array.data[0]'
       value: 
       objectReference: {fileID: 1931582216}
@@ -2513,6 +2548,8 @@ SceneRoots:
   - {fileID: 332496558}
   - {fileID: 6997160124119666708}
   - {fileID: 1424449694}
+  - {fileID: 94401668}
+  - {fileID: 680706295}
   - {fileID: 1057248115}
   - {fileID: 521020297}
   - {fileID: 2052594735}
@@ -2522,5 +2559,3 @@ SceneRoots:
   - {fileID: 857144591}
   - {fileID: 1838704988}
   - {fileID: 1881259270}
-  - {fileID: 94401668}
-  - {fileID: 680706295}

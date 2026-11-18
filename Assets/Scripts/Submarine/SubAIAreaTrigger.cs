@@ -1,11 +1,12 @@
+
 using UnityEngine;
 
-public class SubmarineLocationTrigger : MonoBehaviour
+public class SubAIAreaTrigger : MonoBehaviour
 {
-    [Header("Referencia do Submarino")]
-    [SerializeField] private SubmarineAI submarineAI;
+    [Header("Referencia")]
+    [SerializeField] private SubAIReactions submarineReactions;
 
-    [Header("Configuracao do Comentario")]
+    [Header("Comentario")]
     [SerializeField] private int locationIndex = 0;
 
     [Header("Configuracoes")]
@@ -21,14 +22,13 @@ public class SubmarineLocationTrigger : MonoBehaviour
             return;
         }
 
-        // Impede repeticoes.
         if (activated && activateOnlyOnce)
             return;
 
-        if (submarineAI == null)
+        if (submarineReactions == null)
         {
             Debug.LogWarning(
-                "SubmarineLocationTrigger: SubmarineAI nao atribuido!",
+                "SubmarineLocationTrigger: SubAIReactions nao atribuido!",
                 gameObject
             );
 
@@ -37,9 +37,10 @@ public class SubmarineLocationTrigger : MonoBehaviour
 
         activated = true;
 
-        submarineAI.PlayLocationComment(locationIndex);
+        submarineReactions.PlayLocationComment(locationIndex);
     }
 
+    // RESETAR TRIGGER
     public void ResetTrigger()
     {
         activated = false;

@@ -94,7 +94,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 112000000, guid: 55bf12b167a0b7d4d991ee8a85a8f4f0, type: 2}
-  m_LightingSettings: {fileID: 0}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 637d2582c75517347988f8309c29ccc6, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -469,7 +469,7 @@ GameObject:
   - component: {fileID: 1179146485}
   - component: {fileID: 1179146484}
   m_Layer: 0
-  m_Name: IntroTimeline
+  m_Name: MenuIntroTimeline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -572,7 +572,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2372032336207239487, guid: 409d616d07f902046aec71c0a60a9534, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.0176
+      value: -1.8176
       objectReference: {fileID: 0}
     - target: {fileID: 2372032336207239487, guid: 409d616d07f902046aec71c0a60a9534, type: 3}
       propertyPath: m_LocalPosition.z
@@ -884,8 +884,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 1745489002}
   - {fileID: 1464267533}
-  - {fileID: 1264275372}
   - {fileID: 181151670}
   - {fileID: 1179146485}
+  - {fileID: 1264275372}
   - {fileID: 777099796}
   - {fileID: 403102194}

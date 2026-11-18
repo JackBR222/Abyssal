@@ -9,17 +9,17 @@ EditorBuildSettings:
     path: Assets/Scenes/Menu.unity
     guid: b39889b18d66fb64098271727dbd7642
   - enabled: 1
+    path: Assets/Scenes/Intro.unity
+    guid: 485240770fc525044b0c06718fdfe0e7
+  - enabled: 1
     path: Assets/Scenes/Game.unity
-    guid: c73a9de2df34086468e4d4507f4c37cf
+    guid: d534417cf022268448cae9f35cd72aaa
   - enabled: 1
     path: Assets/Scenes/GameOver.unity
     guid: 324fc33e85fcd834f9c176aec5e1c81c
   - enabled: 1
     path: Assets/Scenes/GameWin.unity
     guid: 9a0e0e7a4e6d852439105c688ff510c4
-  - enabled: 1
-    path: Assets/Scenes/TestRoom.unity
-    guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 61abc5cd4f3124e5eb3d012a768e927c, type: 2}
