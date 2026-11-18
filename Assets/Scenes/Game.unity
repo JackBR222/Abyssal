@@ -196,7 +196,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -810,7 +810,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -1833,12 +1833,16 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -8880698536992543636, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8880698536992543636, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_Shadows.m_Type
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8880698536992543636, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 191
+      value: 63
       objectReference: {fileID: 0}
     - target: {fileID: -8867477870038081954, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -1941,12 +1945,16 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -7550440626349836391, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -7550440626349836391, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_Shadows.m_Type
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7550440626349836391, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 191
+      value: 63
       objectReference: {fileID: 0}
     - target: {fileID: -7308718804694308083, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -2013,12 +2021,16 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -1294892128559850198, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -1294892128559850198, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_Shadows.m_Type
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -1294892128559850198, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 191
+      value: 63
       objectReference: {fileID: 0}
     - target: {fileID: -1120989108687609925, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -2045,12 +2057,16 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -206254283356321021, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -206254283356321021, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_Shadows.m_Type
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -206254283356321021, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 191
+      value: 63
       objectReference: {fileID: 0}
     - target: {fileID: 77145814710894583, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -2113,12 +2129,16 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4073680261343121730, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4073680261343121730, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_Shadows.m_Type
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4073680261343121730, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 191
+      value: 63
       objectReference: {fileID: 0}
     - target: {fileID: 4321514657177891973, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -2133,12 +2153,16 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5701795859802828481, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5701795859802828481, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_Shadows.m_Type
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5701795859802828481, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 191
+      value: 63
       objectReference: {fileID: 0}
     - target: {fileID: 5913183849712345687, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -2149,12 +2173,16 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5958438921693756439, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5958438921693756439, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_Shadows.m_Type
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5958438921693756439, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 191
+      value: 63
       objectReference: {fileID: 0}
     - target: {fileID: 6057459386223700682, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_Layer
@@ -2169,12 +2197,16 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6800325588945520740, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6800325588945520740, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_Shadows.m_Type
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6800325588945520740, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 191
+      value: 63
       objectReference: {fileID: 0}
     - target: {fileID: 6878065597268160045, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -2229,12 +2261,16 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8912049515002365231, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8912049515002365231, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_Shadows.m_Type
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8912049515002365231, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 191
+      value: 63
       objectReference: {fileID: 0}
     - target: {fileID: 9034745934921783391, guid: 4f5906cba6252bd45b6bd7aec3effff5, type: 3}
       propertyPath: m_Layer
@@ -2542,6 +2578,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 832575519}
+  - {fileID: 1881259270}
   - {fileID: 591966198}
   - {fileID: 564146511}
   - {fileID: 7412236297855361687}
@@ -2558,4 +2595,3 @@ SceneRoots:
   - {fileID: 1640392477}
   - {fileID: 857144591}
   - {fileID: 1838704988}
-  - {fileID: 1881259270}
