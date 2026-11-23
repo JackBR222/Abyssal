@@ -3,21 +3,30 @@ using UnityEngine.SceneManagement;
 
 public class SceneLoader : MonoBehaviour
 {
-    [Tooltip("Exact name of the scene to load")]
+    [Header("Configurações da Cena")]
+    [Tooltip("Nome exato da cena que será carregada")]
     public string sceneName;
 
-    // Call this using the Inspector field above
+    // Carrega a cena configurada no Inspector
     public void LoadConfiguredScene()
     {
         if (!string.IsNullOrEmpty(sceneName))
         {
             SceneManager.LoadScene(sceneName);
         }
+        else
+        {
+            Debug.LogWarning("Nenhuma cena foi configurada no Inspector!");
+        }
     }
 
-    // Or pass the scene name directly inside the UnityEvent
-    public void LoadSceneByName(string targetScene)
+    // Fecha o jogo
+    public void QuitGame()
     {
-        SceneManager.LoadScene(targetScene);
+        Application.Quit();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 }

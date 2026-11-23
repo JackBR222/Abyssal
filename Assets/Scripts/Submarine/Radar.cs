@@ -20,7 +20,12 @@ public class Radar : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip detectionSound;
 
-    private HashSet<Collider> detectedEnemies = new HashSet<Collider>();
+    [Header("Sub AI Reactions")]
+    [SerializeField] private bool enableAIComments = true;
+    [SerializeField] private SubAIReactions subAIReactions;
+
+    private HashSet<Transform> detectedEnemies =
+        new HashSet<Transform>();
 
     private float sweepAngle;
 
@@ -84,17 +89,33 @@ public class Radar : MonoBehaviour
         {
             Collider enemy = hit.collider;
 
-            if (enemy == null || detectedEnemies.Contains(enemy))
+            if (enemy == null)
                 continue;
 
-            detectedEnemies.Add(enemy);
+            // Identifica o inimigo pelo objeto raiz.
+            Transform enemyRoot = enemy.transform.root;
 
-            Debug.Log("Sonar detectou: " + enemy.name);
+            // Evita detectar vários colliders do mesmo inimigo.
+            if (detectedEnemies.Contains(enemyRoot))
+                continue;
+
+            detectedEnemies.Add(enemyRoot);
+
+            Debug.Log("Sonar detectou: " + enemyRoot.name);
 
             CreateEnemyPing(hit.point);
 
+            // Comunica a detecção à Sub AI.
+            if (enableAIComments && subAIReactions != null)
+            {
+                subAIReactions.OnSharkDetectedByRadar();
+            }
+
+            // Som de detecção do radar.
             if (audioSource != null && detectionSound != null)
+            {
                 audioSource.PlayOneShot(detectionSound);
+            }
         }
     }
 

@@ -269,7 +269,7 @@ GameObject:
   - component: {fileID: 344643556}
   - component: {fileID: 344643559}
   m_Layer: 5
-  m_Name: Start Button
+  m_Name: Restart Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -340,8 +340,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 344643559}
-        m_TargetAssemblyTypeName: VRMenuController, Assembly-CSharp
-        m_MethodName: StartGame
+        m_TargetAssemblyTypeName: SceneLoader, Assembly-CSharp
+        m_MethodName: LoadConfiguredScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -398,11 +398,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 344643554}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57379d79ab5da544e9ee00b7d2cf1dee, type: 3}
+  m_Script: {fileID: 11500000, guid: 0db038824ef769f4ca73a2cd34420984, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SceneNameGame: Game
-  SceneNameMenu: 
+  sceneName: Game
 --- !u!1 &472955981
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,7 +571,7 @@ GameObject:
   - component: {fileID: 511149100}
   - component: {fileID: 511149099}
   - component: {fileID: 511149098}
-  - component: {fileID: 511149097}
+  - component: {fileID: 511149101}
   m_Layer: 5
   m_Name: Quit Button
   m_TagString: Untagged
@@ -600,20 +599,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -35}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &511149097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 511149095}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57379d79ab5da544e9ee00b7d2cf1dee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SceneNameGame: 
-  SceneNameMenu: 
 --- !u!114 &511149098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -658,8 +643,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 511149097}
-        m_TargetAssemblyTypeName: VRMenuController, Assembly-CSharp
+      - m_Target: {fileID: 511149101}
+        m_TargetAssemblyTypeName: SceneLoader, Assembly-CSharp
         m_MethodName: QuitGame
         m_Mode: 1
         m_Arguments:
@@ -708,6 +693,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 511149095}
   m_CullTransparentMesh: 1
+--- !u!114 &511149101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511149095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db038824ef769f4ca73a2cd34420984, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: 
 --- !u!1001 &615842631
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1413,7 +1411,7 @@ GameObject:
   - component: {fileID: 739958836}
   - component: {fileID: 739958835}
   - component: {fileID: 739958834}
-  - component: {fileID: 739958833}
+  - component: {fileID: 739958837}
   m_Layer: 5
   m_Name: Menu Button
   m_TagString: Untagged
@@ -1441,20 +1439,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &739958833
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 739958831}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57379d79ab5da544e9ee00b7d2cf1dee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SceneNameGame: 
-  SceneNameMenu: Menu
 --- !u!114 &739958834
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1499,9 +1483,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 739958833}
-        m_TargetAssemblyTypeName: VRMenuController, Assembly-CSharp
-        m_MethodName: MenuGame
+      - m_Target: {fileID: 739958837}
+        m_TargetAssemblyTypeName: SceneLoader, Assembly-CSharp
+        m_MethodName: LoadConfiguredScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1549,6 +1533,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 739958831}
   m_CullTransparentMesh: 1
+--- !u!114 &739958837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 739958831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db038824ef769f4ca73a2cd34420984, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: Menu
 --- !u!1 &1252970019
 GameObject:
   m_ObjectHideFlags: 0

@@ -61,6 +61,8 @@ public class SubAITutorial : MonoBehaviour
 
     private void Start()
     {
+        HideTutorialImage();
+        
         if (voiceSource == null)
             voiceSource = GetComponent<AudioSource>();
 

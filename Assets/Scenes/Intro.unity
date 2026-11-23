@@ -818,15 +818,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 582265659785777840, guid: 09c729c5bacfc5c4a8f8541dfc27a8ff, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.681
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 582265659785777840, guid: 09c729c5bacfc5c4a8f8541dfc27a8ff, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.96
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 582265659785777840, guid: 09c729c5bacfc5c4a8f8541dfc27a8ff, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.005
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 582265659785777840, guid: 09c729c5bacfc5c4a8f8541dfc27a8ff, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1069,8 +1069,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c988bbf8d6132cb43a99c023ba637bcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstVideo: {fileID: 32900000, guid: 5e485bc6bf0bb9d40aaabb745c604cd3, type: 3}
-  secondVideo: {fileID: 32900000, guid: 1093a103cd5c9574889df153dcbf4775, type: 3}
+  videoClips:
+  - {fileID: 32900000, guid: 5e485bc6bf0bb9d40aaabb745c604cd3, type: 3}
   width: 1920
   height: 1080
   onCutsceneFinished:

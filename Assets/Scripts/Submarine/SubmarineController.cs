@@ -21,6 +21,12 @@ public class SubmarineController : MonoBehaviour
     [Header("Física")]
     [SerializeField] private Rigidbody submarineRb;
 
+    [Header("Limite de Inclinação")]
+    [SerializeField] private float maxSlopeAngle = 35f;
+    [SerializeField] private float slopeCheckDistance = 1.5f;
+    [SerializeField] private float sphereCastRadius = 0.4f;
+    [SerializeField] private LayerMask groundLayer = ~0;
+
     [Header("Áudio")]
     [SerializeField] private AudioClip engineSound;
 
@@ -33,6 +39,8 @@ public class SubmarineController : MonoBehaviour
 
     private float currentSpeed;
     private float currentTurn;
+
+    private bool canMoveForward = true;
 
     private void Start()
     {
@@ -80,8 +88,13 @@ public class SubmarineController : MonoBehaviour
         float turn =
             (leftLever.Turn + rightLever.Turn) / 2f;
 
+        // Verifica a inclinação na direção do movimento.
+        CheckSlope(forward);
+
         // MOVIMENTO DE AVANÇO E RECUO
-        float targetSpeed = forward * moveSpeed;
+        float targetSpeed = canMoveForward
+            ? forward * moveSpeed
+            : 0f;
 
         float speedRate = Mathf.Abs(forward) > 0.01f
             ? acceleration
@@ -125,6 +138,47 @@ public class SubmarineController : MonoBehaviour
         UpdateAudio();
     }
 
+    private void CheckSlope(float forward)
+    {
+        // Sem comando de movimento, não bloqueia.
+        if (Mathf.Abs(forward) < 0.01f)
+        {
+            canMoveForward = true;
+            return;
+        }
+
+        // Direção em que o submarino está tentando avançar.
+        Vector3 direction = forward >= 0f
+            ? transform.forward
+            : -transform.forward;
+
+        // Origem da detecção.
+        Vector3 origin =
+            submarineRb.position + Vector3.up * 0.2f;
+
+        // Detecta superfícies à frente.
+        if (Physics.SphereCast(
+            origin,
+            sphereCastRadius,
+            direction,
+            out RaycastHit hit,
+            slopeCheckDistance,
+            groundLayer,
+            QueryTriggerInteraction.Ignore))
+        {
+            float slopeAngle = Vector3.Angle(
+                hit.normal,
+                Vector3.up
+            );
+
+            canMoveForward = slopeAngle <= maxSlopeAngle;
+        }
+        else
+        {
+            canMoveForward = true;
+        }
+    }
+
     private void UpdateAudio()
     {
         if (audioSource == null || !audioSource.isPlaying)
@@ -147,6 +201,25 @@ public class SubmarineController : MonoBehaviour
             audioSource.pitch,
             Mathf.Lerp(minPitch, maxPitch, intensity),
             Time.fixedDeltaTime * 5f
+        );
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Vector3 origin = transform.position + Vector3.up * 0.2f;
+
+        Gizmos.color = Color.yellow;
+
+        Gizmos.DrawWireSphere(origin, sphereCastRadius);
+
+        Gizmos.DrawLine(
+            origin,
+            origin + transform.forward * slopeCheckDistance
+        );
+
+        Gizmos.DrawWireSphere(
+            origin + transform.forward * slopeCheckDistance,
+            sphereCastRadius
         );
     }
 }
