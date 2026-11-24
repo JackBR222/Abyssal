@@ -121,7 +121,6 @@ public class EnemyAI : MonoBehaviour
                 Debug.LogWarning("EnemyAI: NavMeshAgent nao esta sobre uma NavMesh.", this);
         }
         stalkAttemptTimer = Mathf.Max(0f, stalkAttemptInterval);
-        UpdateVisionTrigger();
     }
     private void Update()
     {
@@ -576,13 +575,8 @@ public class EnemyAI : MonoBehaviour
     public void SetLightsOn(bool on)
     {
         lightsAreOn = on;
-        UpdateVisionTrigger();
     }
-    private void UpdateVisionTrigger()
-    {
-        if (visionTrigger != null)
-            visionTrigger.radius = lightsAreOn ? visionDistance : darkVisionDistance;
-    }
+
     // ESCONDER JOGADOR
     public void SetPlayerHidden(bool hidden)
     {
