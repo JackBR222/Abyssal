@@ -605,6 +605,7 @@ GameObject:
   - component: {fileID: 348070352}
   - component: {fileID: 348070351}
   - component: {fileID: 348070349}
+  - component: {fileID: 348070353}
   m_Layer: 5
   m_Name: JumpscareImage
   m_TagString: Untagged
@@ -691,6 +692,103 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 348070347}
   m_CullTransparentMesh: 1
+--- !u!82 &348070353
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 348070347}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 0d49696e0952d3e4996d6080a6b5eda8, type: 3}
+  m_Resource: {fileID: 8300000, guid: 0d49696e0952d3e4996d6080a6b5eda8, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &511149095
 GameObject:
   m_ObjectHideFlags: 0
@@ -1394,6 +1492,16 @@ Camera:
   m_CorrespondingSourceObject: {fileID: 6818584981630488448, guid: 09c729c5bacfc5c4a8f8541dfc27a8ff, type: 3}
   m_PrefabInstance: {fileID: 615842631}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &615842635 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7127738049439420948, guid: 09c729c5bacfc5c4a8f8541dfc27a8ff, type: 3}
+  m_PrefabInstance: {fileID: 615842631}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &615842636 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5898172269947436095, guid: 09c729c5bacfc5c4a8f8541dfc27a8ff, type: 3}
+  m_PrefabInstance: {fileID: 615842631}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &615842638 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6556951415940922096, guid: 09c729c5bacfc5c4a8f8541dfc27a8ff, type: 3}
@@ -1883,6 +1991,12 @@ PlayableDirector:
     value: {fileID: 348070349}
   - key: {fileID: 887257007275683985, guid: 4d6e98301beb76e43b8944a6b21d50f6, type: 2}
     value: {fileID: 348070347}
+  - key: {fileID: 757594882367138662, guid: 4d6e98301beb76e43b8944a6b21d50f6, type: 2}
+    value: {fileID: 348070353}
+  - key: {fileID: -2496828538282554311, guid: 4d6e98301beb76e43b8944a6b21d50f6, type: 2}
+    value: {fileID: 615842636}
+  - key: {fileID: 6143397327674899255, guid: 4d6e98301beb76e43b8944a6b21d50f6, type: 2}
+    value: {fileID: 615842635}
   m_ExposedReferences:
     m_References: []
 --- !u!1 &1252970019
