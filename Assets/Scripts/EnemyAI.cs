@@ -105,7 +105,9 @@ public class EnemyAI : MonoBehaviour
     
     private void Awake()
     {
+        SetupTrigger(visionTrigger, true);
         SetupTrigger(attackTrigger, false);
+
         if (submarineLight != null)
             originalLightColor = submarineLight.color;
     }
@@ -498,16 +500,31 @@ public class EnemyAI : MonoBehaviour
     // EVENTOS DOS COLLIDERS
     public void SetPlayerInTrigger(bool vision, bool inside)
     {
-        if (vision) return; // A visao e confirmada por CanSeePlayer(), nao pelo trigger.
+        // DETECCAO DE PRESENCA
+        if (vision)
+        {
+            if (inside &&
+                !playerIsHidden &&
+                state != State.Chase &&
+                state != State.Attack)
+            {
+                StartChase();
+            }
 
+            return;
+        }
+
+        // DETECCAO DE ATAQUE
         playerInAttackTrigger = inside;
+
         if (inside && !playerIsHidden && state == State.Chase)
             state = State.Attack;
     }
+
     // INICIAR PERSEGUICAO
     private void StartChase()
     {
-        if (state == State.Chase || state == State.Attack || playerIsHidden || !CanSeePlayer()) return;
+        if (state == State.Chase || state == State.Attack || playerIsHidden) return;
         state = State.Chase;
         if (player != null) lastKnownPlayerPosition = player.position;
         agent.isStopped = false;

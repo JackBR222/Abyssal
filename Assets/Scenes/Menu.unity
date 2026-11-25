@@ -566,18 +566,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2372032336207239487, guid: 409d616d07f902046aec71c0a60a9534, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2372032336207239487, guid: 409d616d07f902046aec71c0a60a9534, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -1.8176
-      objectReference: {fileID: 0}
-    - target: {fileID: 2372032336207239487, guid: 409d616d07f902046aec71c0a60a9534, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.032999992
-      objectReference: {fileID: 0}
     - target: {fileID: 2910692239220068254, guid: 409d616d07f902046aec71c0a60a9534, type: 3}
       propertyPath: m_Name
       value: PlayerSub Menu
@@ -657,8 +645,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: ABYSSAL
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b347e06535a4e734e825536c89cb60f9, type: 2}
+  m_sharedMaterial: {fileID: 3391673023146637911, guid: b347e06535a4e734e825536c89cb60f9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -690,7 +678,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
